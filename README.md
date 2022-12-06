@@ -1,1 +1,3 @@
-## Databricks Online Feature Stores
+## Azure Databricks Online Feature Store
+### Sample Implementation
+
