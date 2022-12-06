@@ -189,16 +189,17 @@ fs.create_table(
 
 from databricks.feature_store.online_store_spec import AzureCosmosDBSpec
 
-account_uri = <Cosmos DB URI>
+account_uri = dbutils.secrets.get(scope = "fs-cosmos-db", key = "cosmos-endpoint")
 
 # Specify the online store.
 # Note: These commands use the predefined secret prefix. If you used a different secret scope or prefix, edit these commands before running them.
 #       Make sure you have a database created with same name as specified below.
+
 online_store_spec = AzureCosmosDBSpec(
   account_uri=account_uri,
-  write_secret_prefix="feature-store-example-write/cosmos",
-  read_secret_prefix="feature-store-example-read/cosmos",
-  database_name="online_feature_store_example",
+  write_secret_prefix="fs-write-scope2/cosmos",
+  read_secret_prefix="fs-read-scope2/cosmos",
+  database_name="wine_db",
   container_name="feature_store_online_wine_features"
 )
 
