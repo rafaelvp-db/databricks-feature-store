@@ -1,0 +1,12 @@
+*.lock.hcl
+.terraform
+*.tfvars
+.lock
+*.tfstate
+*.lock.info
+*.tfstate.backup
+*.tfstate.*
+.venv
+__pycache__
+.egg.info
+.whl
