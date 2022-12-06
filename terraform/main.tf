@@ -16,6 +16,7 @@ module "cosmosdb" {
 module "databricks_secrets" {
     source                          = "./modules/databricks-secrets"
     cosmosdb_account_name           = module.cosmosdb.name
+    cosmosdb_endpoint               = module.cosmosdb.endpoint
     cosmosdb_read_primary_key       = module.cosmosdb.primary_key
     cosmosdb_read_write_primary_key = module.cosmosdb.primary_key
 }
