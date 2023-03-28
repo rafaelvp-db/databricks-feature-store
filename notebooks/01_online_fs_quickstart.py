@@ -193,11 +193,12 @@ cosmos_endpoint = dbutils.secrets.get("fs-cosmos-db", "cosmos-endpoint")
 
 from databricks.feature_store.online_store_spec import AzureCosmosDBSpec
 
-account_uri = cosmos_endpoint
+account_uri = dbutils.secrets.get(scope = "fs-cosmos-db", key = "cosmos-endpoint")
 
 # Specify the online store.
 # Note: These commands use the predefined secret prefix. If you used a different secret scope or prefix, edit these commands before running them.
 #       Make sure you have a database created with same name as specified below.
+
 online_store_spec = AzureCosmosDBSpec(
   account_uri=account_uri,
   write_secret_prefix="fs-write-scope2/cosmos",
@@ -332,7 +333,6 @@ def predict(dataset):
 
 new_wine_ids = pd.DataFrame([(25, 7.9), (25, 11.0), (25, 27.9)], columns=['wine_id', "alcohol"])
 
-payload = {"dataframe_records": new_wine_ids}
 
 print(predict(new_wine_ids))
 
