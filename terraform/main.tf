@@ -20,3 +20,7 @@ module "databricks_secrets" {
     cosmosdb_read_primary_key       = module.cosmosdb.primary_key
     cosmosdb_read_write_primary_key = module.cosmosdb.primary_key
 }
+
+module "databricks_clusters" {
+    source = "./modules/databricks-clusters"
+}
