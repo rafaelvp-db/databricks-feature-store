@@ -187,6 +187,10 @@ fs.create_table(
 
 # COMMAND ----------
 
+cosmos_endpoint = dbutils.secrets.get("fs-cosmos-db", "cosmos-endpoint")
+
+# COMMAND ----------
+
 from databricks.feature_store.online_store_spec import AzureCosmosDBSpec
 
 account_uri = dbutils.secrets.get(scope = "fs-cosmos-db", key = "cosmos-endpoint")
@@ -198,8 +202,8 @@ account_uri = dbutils.secrets.get(scope = "fs-cosmos-db", key = "cosmos-endpoint
 online_store_spec = AzureCosmosDBSpec(
   account_uri=account_uri,
   write_secret_prefix="fs-write-scope2/cosmos",
-  read_secret_prefix="fs-read-scope2/cosmos",
-  database_name="wine_db",
+  read_secret_prefix="fs-write-scope2/cosmos",
+  database_name="online_feature_store_example",
   container_name="feature_store_online_wine_features"
 )
 
@@ -273,7 +277,7 @@ fs.log_model(
     artifact_path="model",
     flavor=mlflow.sklearn,
     training_set=training_set,
-    registered_model_name="wine_quality_classifier"
+    registered_model_name="wine_quality_classifier_rvp"
 )
 
 # COMMAND ----------
@@ -298,8 +302,7 @@ fs.log_model(
 # Fill in the Databricks access token value.
 # Note: You can generate a new Databricks access token by going to left sidebar "Settings" > "User Settings" > "Access Tokens", or using databricks-cli.
 
-DATABRICKS_TOKEN = "<DATABRICKS_TOKEN>"
-assert DATABRICKS_TOKEN.strip() != "<DATABRICKS_TOKEN>"
+DATABRICKS_TOKEN = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().getOrElse(None)
 
 # COMMAND ----------
 
@@ -312,10 +315,11 @@ def create_tf_serving_json(data):
     return {'inputs': {name: data[name].tolist() for name in data.keys()} if isinstance(data, dict) else data.tolist()}
 
 def predict(dataset):
-    url = '<Replace with the URL shown in Serving page>'
+    url = 'https://adb-984752964297111.11.azuredatabricks.net/serving-endpoints/wine_quality_rvp/invocations'
     headers = {'Authorization': f'Bearer {DATABRICKS_TOKEN}'}
-    data_json = dataset.to_dict(orient='split') if isinstance(dataset, pd.DataFrame) else create_tf_serving_json(dataset)
-    response = requests.request(method='POST', headers=headers, url=url, json=data_json)
+    data_json = dataset.to_dict(orient='records') if isinstance(dataset, pd.DataFrame) else create_tf_serving_json(dataset)
+    payload = {"dataframe_records": data_json}
+    response = requests.request(method='POST', headers=headers, url=url, json=payload)
     if response.status_code != 200:
         raise Exception(f'Request failed with status {response.status_code}, {response.text}')
     return response.json()
@@ -328,6 +332,7 @@ def predict(dataset):
 # COMMAND ----------
 
 new_wine_ids = pd.DataFrame([(25, 7.9), (25, 11.0), (25, 27.9)], columns=['wine_id', "alcohol"])
+
 
 print(predict(new_wine_ids))
 
